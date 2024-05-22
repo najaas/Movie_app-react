@@ -1,42 +1,33 @@
-import React, { createContext, useEffect, useState } from 'react'
-import AdminForm from '../pages/adminpage/movieaddform';
-import AdminBooks from '../pages/adminpage/movieshowpage';
+import React, { createContext, useEffect, useState } from "react";
 
+export const FormDataContext = createContext(); // Export FormDataContext
 
-   export const FormDataContext=createContext();
+const MovieContext = createContext();
 
+export const MovieProvider = ({ children }) => {
+  const [movies, setMovies] = useState(() => {
+    const localData = localStorage.getItem("movies");
+    return localData ? JSON.parse(localData) : [];
+  });
 
-const BookContext = ({children}) => {
-     
-    const [formData,setFormData]=useState([]);
+  useEffect(() => {
+    localStorage.setItem("movies", JSON.stringify(movies));
+  }, [movies]);
 
-    useEffect(()=>{
-        const StoredData=JSON.parse(localStorage.getItem('formData'))||[];
-        setFormData(StoredData);
-        console.log("useeffect working");
-    },[]);
-       
-    const handleSubmit = (values, { resetForm }, indexToDelete) => {
-        if (indexToDelete !== undefined) {
-            const updatedFormData = formData.filter((_, index) => index !== indexToDelete);
-            setFormData(updatedFormData);
-            localStorage.setItem('formData', JSON.stringify(updatedFormData));
-            console.log("delete worked");
-        } else {
-            const newFormData = [...formData, values];
-            setFormData(newFormData);
-            localStorage.setItem('formData', JSON.stringify(newFormData));
-            resetForm();
-        }
+  const addMovie = (movie) => {
+    const newMovie = {
+      ...movie,
+      review: movie.review || [],
+      id: new Date().toISOString(),
     };
-
+    setMovies((prevMovies) => [...prevMovies, newMovie]);
+  };
 
   return (
-   <FormDataContext.Provider value={{formData,handleSubmit}}>
-    {children}
-
-   </FormDataContext.Provider>
-  )
-}
-
-export default BookContext
+    <MovieContext.Provider value={{ addMovie, movies }}>
+      <FormDataContext.Provider value={{ handleSubmit: addMovie }}>
+        {children}
+      </FormDataContext.Provider>
+    </MovieContext.Provider>
+  );
+};

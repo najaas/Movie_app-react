@@ -6,8 +6,9 @@ function Home() {
     <div>
     <Navbar/>
     < Banner/>
+
     </div>
   )
 }
 
-export default Home
+export default Home;
