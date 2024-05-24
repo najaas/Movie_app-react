@@ -1,33 +1,32 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useState, useEffect } from 'react';
 
-export const FormDataContext = createContext(); // Export FormDataContext
+export const FormContext = createContext();
 
-const MovieContext = createContext();
-
-export const MovieProvider = ({ children }) => {
+const FormProvider = ({ children }) => {
   const [movies, setMovies] = useState(() => {
-    const localData = localStorage.getItem("movies");
-    return localData ? JSON.parse(localData) : [];
+    try {
+      const savedMovies = localStorage.getItem('formData');
+      console.log(savedMovies,"undo");
+      return savedMovies ? JSON.parse(savedMovies) : [];
+    } catch (error) {
+      console.error('Error loading movies from localStorage:', error);
+      return [];
+    }
   });
 
   useEffect(() => {
-    localStorage.setItem("movies", JSON.stringify(movies));
+    try {
+      localStorage.setItem('movies', JSON.stringify(movies));
+    } catch (error) {
+      console.error('Error saving movies to localStorage:', error);
+    }
   }, [movies]);
 
-  const addMovie = (movie) => {
-    const newMovie = {
-      ...movie,
-      review: movie.review || [],
-      id: new Date().toISOString(),
-    };
-    setMovies((prevMovies) => [...prevMovies, newMovie]);
-  };
-
   return (
-    <MovieContext.Provider value={{ addMovie, movies }}>
-      <FormDataContext.Provider value={{ handleSubmit: addMovie }}>
-        {children}
-      </FormDataContext.Provider>
-    </MovieContext.Provider>
+    <FormContext.Provider value={{ movies, setMovies }}>
+      {children}
+    </FormContext.Provider>
   );
 };
+
+export default FormProvider;

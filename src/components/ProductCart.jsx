@@ -20,8 +20,6 @@ function ProductCard() {
         })}
       </div>
 
-
-
     </div>
   );
 }

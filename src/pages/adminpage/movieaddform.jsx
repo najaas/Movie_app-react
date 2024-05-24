@@ -1,83 +1,76 @@
-// AdminForm.jsx
-import React, { useContext } from 'react';
-import AdminNavbar from "../../components/navbar";
-import { Formik, Form, Field } from 'formik';
-import * as yup from 'yup';
-import { FormDataContext } from '../../context/moviecontext'; // Correct import
+import React, { useState } from 'react';
 
-const AdminForm = () => {
-  const { handleSubmit } = useContext(FormDataContext);
+// Define resetFormData outside the component
+const resetFormData = {
+  name: '',
+  director: '',
+  genre: '',
+  releaseDate: '',
+  studio: '',
+  duration: '',
+  synopsis: '',
+  language: '',
+  price: '',
+  discount: '',
+  image: '',
+};
 
-  const handleFileChange = (event, setFieldValue) => {
-    const reader = new FileReader();
-    const file = event.currentTarget.files[0];
-    reader.onloadend = () => {
-      setFieldValue("image", reader.result);
-    };
-    if (file) {
-      reader.readAsDataURL(file);
-    }
+const MovieForm = () => {
+  const [formData, setFormData] = useState(resetFormData);
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setFormData({ ...formData, [name]: value });
   };
 
-  const validationSchema = yup.object({
-    name: yup.string().required("Movie name is required"),
-    director: yup.string().required("Director is required"),
-    genre: yup.string().required("Genre is required"),
-    releaseDate: yup.date().required("Release date is required"),
-    studio: yup.string().required("Studio is required"),
-    duration: yup.number().required("Duration is required").positive("Enter a positive number"),
-    synopsis: yup.string().required("Synopsis is required"),
-    language: yup.string().required("Language is required"),
-    price: yup.number().required("Price is required").positive("Enter a positive number"),
-    discount: yup.number().required("Discount is required").positive("Enter a positive number"),
-    image: yup.mixed().required("Poster image is required")
-  });
+  const handleSubmit = (event) => {
+    event.preventDefault();
 
-  const initialValues = {
-    name: "",
-    director: "",
-    genre: "",
-    releaseDate: "",
-    studio: "",
-    duration: "",
-    synopsis: "",
-    language: "",
-    price: "",
-    discount: "",
-    image: ""
+    // Get existing movies from localStorage
+    let existingMovies = JSON.parse(localStorage.getItem('formData')) || [];
+    if (Array.isArray(existingMovies)) {
+      existingMovies.push(formData);
+    } else {
+      existingMovies = [];
+    }
+
+    // Save updated movies array to localStorage
+    try {
+      localStorage.setItem('formData', JSON.stringify(existingMovies));
+      console.log('Movies saved to localStorage:', existingMovies);
+    } catch (error) {
+      console.error('Error saving movies data to localStorage:', error);
+    }
+
+    // Reset form fields
+    setFormData(resetFormData);
   };
 
   return (
-    <div>
-      <AdminNavbar />
-      <div className='w-full h-[600px] flex justify-center items-center'>
-        <Formik
-          initialValues={initialValues}
-          validationSchema={validationSchema}
-          onSubmit={handleSubmit}
-        >
-          {({ errors, touched, setFieldValue }) => (
-            <Form>
-              <div className='w-[800px] h-[550px] bg-white flex'>
-                {/* Left section */}
-                <div className='w-[400px] h-[550px] bg-white flex flex-col justify-start items-center border shadow-lg'>
-                  {/* Your form fields */}
-                </div>
-
-                {/* Right section */}
-                <div className='w-[400px] h-[550px] bg-white flex flex-col justify-start items-center shadow-lg'>
-                  {/* Your form fields */}
-                </div>
-              </div>
-              <div className='w-full flex justify-center mt-4'>
-                <button type="submit" className='bg-blue-500 text-white p-2 rounded'>Submit</button>
-              </div>
-            </Form>
-          )}
-        </Formik>
-      </div>
-    </div>
+    <form onSubmit={handleSubmit} className="max-w-lg mx-auto p-4 bg-white shadow-md rounded-md">
+      {['name', 'director', 'genre', 'releaseDate', 'studio', 'duration', 'synopsis', 'language', 'price', 'discount', 'image'].map(field => (
+        <div key={field} className="mb-4">
+          <label htmlFor={field} className="block text-sm font-medium text-gray-700 capitalize">
+            {field.replace(/([A-Z])/g, ' $1')}
+          </label>
+          <input
+            type="text"
+            name={field}
+            id={field}
+            value={formData[field]}
+            onChange={handleInputChange}
+            className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          />
+        </div>
+      ))}
+      <button
+        type="submit"
+        className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+      >
+        Upload Data
+      </button>
+    </form>
   );
 };
 
-export default AdminForm;
+export default MovieForm;
