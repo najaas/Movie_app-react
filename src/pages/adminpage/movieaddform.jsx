@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate,Link } from 'react-router-dom';
+// const navigator=useNavigate
 
 // Define resetFormData outside the component
 const resetFormData = {
+  id: '',
   name: '',
   director: '',
   genre: '',
@@ -48,7 +51,14 @@ const MovieForm = () => {
 
   return (
     <form onSubmit={handleSubmit} className="max-w-lg mx-auto p-4 bg-white shadow-md rounded-md">
-      {['name', 'director', 'genre', 'releaseDate', 'studio', 'duration', 'synopsis', 'language', 'price', 'discount', 'image'].map(field => (
+      {/* <button onClick={()=> navigator('/movieshow')} className='absolute top-4 left-20 bg-blue-500 text-white py-1 px-3 rounded-md '>Movie List</button> */}
+      <div className="text-center absolute top-4 left-24">
+            <span>Back to </span>
+            <Link to="/movieshow" className="text-black-600 hover:underline  bg-red-500 text-white py-1 px-3 rounded-md">
+              Movie List
+            </Link>
+          </div>
+      {['id','name', 'director', 'genre', 'releaseDate', 'studio', 'duration', 'synopsis', 'language', 'price', 'discount', 'image'].map(field => (
         <div key={field} className="mb-4">
           <label htmlFor={field} className="block text-sm font-medium text-gray-700 capitalize">
             {field.replace(/([A-Z])/g, ' $1')}
